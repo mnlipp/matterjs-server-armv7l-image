@@ -18,19 +18,20 @@ ARG MATTERJS_SERVER_VERSION
 RUN /bin/sh -o pipefail -c '\
     set -x \
     && apk update \
-    && apk add --no-cache --virtual .build-deps \
-	nodejs \
-	npm \
+    && apk add --no-cache \
+        nodejs \
+        npm \
         iputils \
         curl \
+        bluez \
+        libcap \
+    && apk add --no-cache --virtual .build-deps \
         python3 \
         make \
         gcc \
         g++ \
-        bluez \
         bluez-dev \
         eudev-dev \
-        libcap \
     # ping_node runs as the non-root user; CAP_NET_RAW on the binary lets it open
     # an ICMP socket regardless of the host's net.ipv4.ping_group_range.
     && setcap cap_net_raw+ep "$(command -v ping)" \
@@ -67,7 +68,6 @@ RUN /bin/sh -o pipefail -c '\
     && rm -rf /tmp/* /var/tmp/* /root/.npm /root/.cache \
     # Initialize data volume with user permissions
     && mkdir /data \
-    && chown 1000:1000 /data \
     '
 
 # Environment variables with defaults (all CLI options can be set via env vars)
@@ -81,11 +81,6 @@ VOLUME ["/data"]
 # WebSocket API port
 EXPOSE 5580
 
-# Healthcheck script honours LISTEN_ADDRESS / PORT so it still works when the
-# server is bound to a non-localhost address. See script for limitations.
-COPY --chmod=0755 healthcheck.sh /usr/local/bin/healthcheck.sh
-
 # Run the matter server directly (all config via environment variables)
-USER 1000:1000
 ENTRYPOINT ["node", "--enable-source-maps", "/app/node_modules/matter-server/dist/esm/MatterServer.js"]
 CMD []
