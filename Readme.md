@@ -36,8 +36,7 @@ ExecStart=/usr/bin/podman run \
 	-e TZ=Europe/Berlin \
 	-e BLUETOOTH_ADAPTER=0 \
 	-e NOBLE_BINDINGS=dbus \
-	--pull=always \
-	docker-registry.lan.mnl.de/matterjs-server/matterjs-server:1.2.6
+	ghcr.io/mnlipp/matterjs-server/matterjs-server:1.2.6-1
 ExecStop=/usr/bin/podman stop --ignore --cidfile=%t/%n.ctr-id
 ExecStopPost=/usr/bin/podman rm -f --ignore --cidfile=%t/%n.ctr-id
 Type=notify
