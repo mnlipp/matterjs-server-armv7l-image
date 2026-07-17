@@ -1,4 +1,4 @@
-FROM alpine:3.24
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -19,8 +19,8 @@ RUN /bin/sh -o pipefail -c '\
     set -x \
     && apk update \
     && apk add --no-cache \
-        nodejs \
-        npm \
+	nodejs \
+	npm \
         iputils \
         curl \
         bluez \
@@ -30,6 +30,7 @@ RUN /bin/sh -o pipefail -c '\
         make \
         gcc \
         g++ \
+	linux-headers \
         bluez-dev \
         eudev-dev \
     # ping_node runs as the non-root user; CAP_NET_RAW on the binary lets it open
@@ -37,7 +38,7 @@ RUN /bin/sh -o pipefail -c '\
     && setcap cap_net_raw+ep "$(command -v ping)" \
     # Install matter-server from npm and optimize image size
     && set -x \
-    && npm install --foreground-scripts "matter-server@${MATTERJS_SERVER_VERSION}" \
+    && CXXFLAGS="-std=c++17" npm install --foreground-scripts "matter-server@${MATTERJS_SERVER_VERSION}" \
     # Remove build dependencies (no longer needed after native modules are compiled)
     && apk del --purge \
         python3 \
